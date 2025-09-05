@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TomOTP - Token Generator</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/svg+xml" href="img/logo.svg">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3a0ca3;
+      --success-color: #2ec4b6;
+      --background-light: #ffffff;
+      --text-light: #333333;
+      --card-light: #ffffff;
+      --background-dark: #121212;
+      --text-dark: #e0e0e0;
+      --card-dark: #1e1e1e;
+    }
+
+    [v-cloak] {
+      display: none;
+    }
+
+    html, body {
+      height: 100%;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      background-color: var(--background-light);
+      color: var(--text-light);
+    }
+
+    body.dark-mode {
+      background-color: var(--background-dark);
+      color: var(--text-dark);
+    }
+
+    .dark-mode .box, .dark-mode .card {
+      background-color: var(--card-dark);
+      color: var(--text-dark);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .dark-mode .input {
+      background-color: #2d2d2d;
+      color: var(--text-dark);
+      border-color: #3d3d3d;
+    }
+
+    .dark-mode .label {
+      color: var(--text-dark);
+    }
+
+    .dark-mode .title, .dark-mode .subtitle {
+      color: var(--text-dark);
+    }
+
+    .dark-mode .footer {
+      background-color: #0a0a0a;
+      color: var(--text-dark);
+    }
+
+    .dark-mode .progress::-webkit-progress-value {
+      background-color: var(--success-color);
+    }
+
+    .dark-mode .progress::-moz-progress-bar {
+      background-color: var(--success-color);
+    }
+
+    .dark-mode .button.is-light {
+      background-color: #2d2d2d;
+      color: var(--text-dark);
+    }
+
+    body > footer {
+      position: sticky;
+      top: 100vh;
+      margin-top: auto;
+    }
+
+    .footer {
+      padding: 2rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .app-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .token-display {
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .dark-mode .token-display {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .token-display:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .dark-mode .token-display:hover {
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .token-digits {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      font-size: 3rem;
+      text-align: center;
+      padding: 2rem 1rem;
+      user-select: all;
+    }
+
+    .input-card {
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode .input-card {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .input-card:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark-mode .input-card:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .timer-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .timer-text {
+      margin-right: 1rem;
+      min-width: 150px;
+    }
+
+    .progress {
+      height: 8px;
+      border-radius: 4px;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 100;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: var(--text-light);
+      transition: color 0.3s ease;
+    }
+
+    .dark-mode .theme-toggle {
+      color: var(--text-dark);
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: var(--primary-color);
+      transition: all 0.3s ease;
+    }
+
+    .copy-button:hover {
+      transform: scale(1.1);
+      color: var(--secondary-color);
+    }
+
+    .dark-mode .copy-button {
+      color: var(--success-color);
+    }
+
+    .dark-mode .copy-button:hover {
+      color: #4cc9bd;
+    }
+
+    .field-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #666;
+      transition: color 0.3s ease;
+    }
+
+    .dark-mode .field-label {
+      color: #aaa;
+    }
+
+    .input {
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: none;
+    }
+
+    .input:focus {
+      box-shadow: 0 0 0 2px var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .dark-mode .input:focus {
+      box-shadow: 0 0 0 2px var(--success-color);
+      border-color: var(--success-color);
+    }
+
+    .app-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-align: center;
+      color: var(--primary-color);
+      transition: color 0.3s ease;
+    }
+
+    .dark-mode .app-title {
+      color: var(--success-color);
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: var(--secondary-color);
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .subtitle {
+      color: #7dcfca;
+    }
+    
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .footer-content p {
+      margin-bottom: 0.75rem;
+    }
+    
+    .footer-content .button {
+      transition: all 0.3s ease;
+      background-color: var(--primary-color);
+      border-color: transparent;
+    }
+    
+    .footer-content .button:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark-mode .footer-content .button {
+      background-color: var(--success-color);
+    }
+    
+    .dark-mode .footer-content .button:hover {
+      background-color: #4cc9bd;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    @media screen and (max-width: 768px) {
+      .token-digits {
+        font-size: 2.5rem;
+      }
+      
+      .app-title {
+        font-size: 2rem;
+      }
+      
+      .subtitle {
+        font-size: 1rem;
+      }
+      
+      .app-container {
+        padding: 1.5rem 1rem;
+      }
+      
+      .timer-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .timer-text {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+        min-width: auto;
+      }
+      
+      .theme-toggle {
+        top: 0.75rem;
+        right: 0.75rem;
+      }
+    }
+    
+    @media screen and (max-width: 480px) {
+      .token-digits {
+        font-size: 2rem;
+        padding: 1.5rem 0.5rem;
+      }
+      
+      .app-title {
+        font-size: 1.75rem;
+      }
+      
+      .copy-button {
+        top: 0.75rem;
+        right: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <script defer src="js/assets/vue.js"></script>
+  <script defer src="js/assets/otpauth.js"></script>
+  <script defer src="js/assets/clipboard.js"></script>
+  <script defer src="js/app.js?v=1.3"></script>
+
+  <section id="app" class="section" v-cloak>
+    <button @click="toggleDarkMode" class="theme-toggle" :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+      <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+    </button>
+
+    <div class="app-container">
+      <h1 class="app-title">TomOTP</h1>
+      <h2 class="subtitle has-text-centered">Token Generator</h2>
+
+      <div class="token-display box">
+        <div class="token-digits" id="token">{{ token }}</div>
+        <button class="copy-button" id="clipboard-button" data-clipboard-target="#token" title="Copy token to clipboard">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+
+      <div class="timer-container">
+        <div class="timer-text">
+          <span class="has-text-grey is-size-7">Refreshing in {{ updatingIn }}s</span>
+        </div>
+        <progress class="progress is-info is-small" v-bind:value="updatingIn" :max="period"></progress>
+      </div>
+
+      <div class="input-card box">
+        <div class="field">
+          <label class="field-label">Secret Key</label>
+          <div class="control has-icons-left">
+            <input class="input" type="text" v-model="secret_key" placeholder="Enter your secret key (base-32 format)">
+            <span class="icon is-small is-left">
+              <i class="fas fa-key"></i>
+            </span>
+          </div>
+        </div>
+
+        <div class="columns is-mobile">
+          <div class="column is-half">
+            <div class="field">
+              <label class="field-label">Digits</label>
+              <div class="control has-icons-left">
+                <input class="input" type="number" v-model="digits" placeholder="6" min="1" max="10">
+                <span class="icon is-small is-left">
+                  <i class="fas fa-hashtag"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="column is-half">
+            <div class="field">
+              <label class="field-label">Period (seconds)</label>
+              <div class="control has-icons-left">
+                <input class="input" type="number" v-model="period" placeholder="30" min="1">
+                <span class="icon is-small is-left">
+                  <i class="fas fa-clock"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Algorithm</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select v-model="algorithm">
+                <option value="SHA1">SHA1 (Default)</option>
+                <option value="SHA256">SHA256</option>
+                <option value="SHA512">SHA512</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="content has-text-centered">
+        <div class="footer-content">
+          <p class="mb-2">
+            Developed by <a href="https://github.com/hasanulhossaint">Md. Hassaul Hossain Tomal</a>
+          </p>
+          <p>
+            <a href="https://github.com/hasanulhossaint/tomotp" class="button is-small is-rounded is-primary">
+              <span class="icon">
+                <i class="fab fa-github"></i>
+              </span>
+              <span>Source Code</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
